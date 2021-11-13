@@ -3,7 +3,12 @@ import express from 'express';
 import cloudinary from 'cloudinary'
 import IndexRoutes from './routes'
 
-import db from './database'
+if(process.env.NODE_ENV !== 'production'){
+    require('dotenv').config()
+}
+
+
+require('./database')
 //initializations
 export const app = express()
 
@@ -32,7 +37,7 @@ app.use('/', IndexRoutes);
 
 //starting server
 
-db.query("SHOW TABLES")
+
 
 
 export const server = app.listen(app.get('port'), () => {

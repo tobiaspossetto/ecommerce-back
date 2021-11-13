@@ -4,10 +4,10 @@ import {promisify} from 'util'
 
 
 const db = mysql.createPool({
-    host: 'bzj3dkly9sqlbpqkhw6s-mysql.services.clever-cloud.com',
-    user: 'umpcgwbm2eqqoewf',
-    password: 'bzj3dkly9sqlbpqkhw6s',
-    database: 'bzj3dkly9sqlbpqkhw6s'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASENAME
 })
 
 db.getConnection((err, connection) => {
@@ -20,7 +20,10 @@ db.getConnection((err, connection) => {
     return;
 })
 
-// @ts-ignore
-db.query = promisify(db.query);
+promisify(db.query)
 
+
+//db.query = promisify(db.query);
 export default db
+
+

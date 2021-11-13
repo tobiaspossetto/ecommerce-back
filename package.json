@@ -6,9 +6,9 @@
   "scripts": {
     "clean": "del  build",
     "build": "tsc",
-    "start": "node build/src/",
+    "start": "cross-env NODE_ENV=development nodemon --exec babel-node src/index.js",
     "ts:node": "ts-node src/index.ts",
-    "dev": "nodemon",
+    "dev": "cross-env NODE_ENV=development nodemon src/index.js",
     "test": "cross-env NODE_ENV=test jest --verbose --silent",
     "test:watch": "npm run test -- --watchAll"
   },
@@ -16,9 +16,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/jsonwebtoken": "^8.5.5",
+    "bcryptjs": "^2.4.3",
     "cloudinary": "^1.27.1",
     "cross-env": "^7.0.3",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
     "mysql": "^2.18.1"
   },
   "devDependencies": {
