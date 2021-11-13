@@ -2,6 +2,8 @@ import express from 'express';
 
 import cloudinary from 'cloudinary'
 import IndexRoutes from './routes'
+
+import db from './database'
 //initializations
 export const app = express()
 
@@ -29,6 +31,9 @@ app.use('/', IndexRoutes);
 
 
 //starting server
+
+db.query("SHOW TABLES")
+
 
 export const server = app.listen(app.get('port'), () => {
     console.log(`server on port ${app.get('port')}`)
