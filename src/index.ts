@@ -1,14 +1,14 @@
 import express from 'express';
 
 import cloudinary from 'cloudinary'
-import IndexRoutes from './routes'
+import routes from './routes'
 
 if(process.env.NODE_ENV !== 'production'){
     require('dotenv').config()
 }
 
 
-require('./database')
+
 //initializations
 export const app = express()
 
@@ -32,7 +32,7 @@ app.use(express.urlencoded({extended:false})) //poder interpretar datos de un fo
 
 //routes
 
-app.use('/', IndexRoutes);
+app.use('/', routes);
 
 
 //starting server
