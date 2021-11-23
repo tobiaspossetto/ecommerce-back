@@ -3,6 +3,7 @@ import express from 'express';
 import cloudinary from 'cloudinary'
 import routes from './routes'
 
+
 if(process.env.NODE_ENV !== 'production'){
     require('dotenv').config()
 }
@@ -11,7 +12,6 @@ if(process.env.NODE_ENV !== 'production'){
 
 //initializations
 export const app = express()
-
 
 //settings
 app.set('port', process.env.port || 4000)
