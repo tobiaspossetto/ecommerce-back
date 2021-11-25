@@ -5,7 +5,7 @@ export default class Jwt {
     checkJwt = (req: Request, res: Response, next: NextFunction) => {
         const bearerHeader = req.headers['authorization'];
         let jwtPayload;
-        let secretKey:any = process.env.JWT_SECRET_KEY;
+        let secretKey:any = process.env.SECRET_JWT;
         //Si la cabecera no es undefined
         if (typeof bearerHeader !== 'undefined') {
 

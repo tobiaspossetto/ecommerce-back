@@ -15,8 +15,8 @@ module.exports ={
     
             let rows:any = await db.query("SELECT password FROM users WHERE username = ?", [username])
     
-            dbPassword = rows[0].password
-    
+            dbPassword = rows[0][0].password
+            
     
         } catch (error) {
     
