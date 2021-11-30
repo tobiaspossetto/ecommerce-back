@@ -1,12 +1,16 @@
 import nodemailer from 'nodemailer';
 import { connect } from '../database'
+if(process.env.NODE_ENV !== 'production'){
+    require('dotenv').config()
+}
+
 export const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
     secure: true,
     auth: {
         user: 'tobigpossetto@gmail.com',
-        pass: 'vxhbzrnsxcjsoivn'
+        pass: process.env.EMAIL_PASSWORD
     }
 });
 
@@ -32,8 +36,14 @@ transporter.verify((error, success) => {
                  from: '"Ecommerce App" <tobigpossetto@gmail.com>', // sender address
                  to: `${email}`, //person
                  subject: 'Por favor verifica tu cuenta',
-                 text: 'Hello world?', // plain text body
-                 html: `<a src=${newToken}>Hello world?</a>` // html body
+                 text: 'Para completar tu registro ingresa al siguiente link. Si no fuiste tu el que se registró, ignora este mensaje.', // plain text body
+                 html: `
+                    <h1>Por favor verifica tu cuenta</h1>
+                    <p>Para completar tu registro ingresa al siguiente link. Si no fuiste tu el que se registró, ignora este mensaje.</p>
+                 
+                     <a style={padding:10px; background: black; color: white; text-aling:center;} href="${process.env.port || 4000}/confirmEmail/${newToken}">Verificar</a>` // html body
+                   
+                 
              })
  
              try {

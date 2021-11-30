@@ -26,7 +26,7 @@ router.post('/login-user',
 
 
 router.get('/add', async (req: Request , res: Response) => {
-   res.send('add')
+   res.send('add').status(200)
         
     
   
