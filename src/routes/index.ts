@@ -3,6 +3,7 @@ import UserController  from '../controllers/userController'
 const {createUserSchema, updateUserSchema, loginUserSchema} = require('../lib/schemas')
 import Validator from '../middlewares/validator'
 import Jwt from '../middlewares/jwt'
+const {checkRole} = require('../middlewares/role')
 const router: Router = Router();
 const ctrl = new UserController()
 const Valid = new Validator()
@@ -21,7 +22,7 @@ router.post('/login-user',
 )
 
 
-router.get('/add', JwtCtrl.checkJwt, (req: Request , res: Response) => {
+router.get('/add', JwtCtrl.checkJwt,checkRole, (req: Request , res: Response) => {
     res.send('form')
 })
 
