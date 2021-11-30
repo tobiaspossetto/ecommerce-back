@@ -2,6 +2,7 @@
 import { Request, Response } from 'express'
 import { connect } from '../database'
 import jwt from 'jsonwebtoken'
+const {sendEmail} = require('../lib/mailer')
 const { hashPassword, checkPassword } = require('../lib/encryptor')
 
 export default class UserController {
@@ -27,8 +28,18 @@ export default class UserController {
                 const newUser: object = { username, email, phone, adress, password: hashPassword(password), adm: 0 };
                 try {
                     await db.query("INSERT INTO users set ?", [newUser])
-                    res.status(200)
-                    res.send('User Created')
+
+                   if( await sendEmail(email)){
+                    res.send({
+                        message: 'User created successfully'
+                    }).status(200)
+                    
+                   }else{
+                    res.send({
+                        message: 'Error sending confirmation email'
+                    }).status(200)
+                   }
+                  
                 } catch (error) {
                     console.log(error)
                     res.status(404).json({ message: 'Error consulting database' })
@@ -104,6 +115,11 @@ export default class UserController {
             console.log(error)
         }
        
+    }
+
+    async sendConfirmationEmail(email: string): Promise<any> {
+       
+
     }
 
 

@@ -11,6 +11,23 @@ test('/ expected 200', async() =>{
 })
 
 
+
+test('/ expected 400', async() =>{
+    await api
+    .post('/create-user')
+    .send({
+        "name": "test",
+        "email": "asdasdasdad ",
+        "password": "test"
+    })
+    .expect(400)
+    //.expect('Content-Type', /json/)
+
+})
+    //.expect('Content-Type', /json/)
+
+
+
 afterAll(() => {
     server.close();
 })
