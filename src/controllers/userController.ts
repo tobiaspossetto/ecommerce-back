@@ -18,31 +18,25 @@ export default class UserController {
 
             if (emailExists[0].length > 0) {
                 res.send({
+                    error: true,
                     message: 'Email already in use'
                 }).status(400)
-            } else if (userExists[0].length > 0) {
+            }else if (userExists[0].length > 0) {
                 res.send({
+                    error:true,
                     message: 'Username already in use'
                 }).status(400)
             } else {
                 const newUser: object = { username, email, phone, adress, password: hashPassword(password), adm: 0 };
+                
                 try {
                     await db.query("INSERT INTO users set ?", [newUser])
+                    await sendEmail(email)
+                    res.send({error: false, message: 'User created successfully'}).status(200)
 
-                   if( await sendEmail(email)){
-                    res.send({
-                        message: 'User created successfully'
-                    }).status(200)
-                    
-                   }else{
-                    res.send({
-                        message: 'Error sending confirmation email'
-                    }).status(200)
-                   }
-                  
                 } catch (error) {
                     console.log(error)
-                    res.status(404).json({ message: 'Error consulting database' })
+                    res.status(404).json({ error:true, message: 'Error consulting database' })
                 }
             }
 
@@ -117,10 +111,37 @@ export default class UserController {
        
     }
 
-    async sendConfirmationEmail(email: string): Promise<any> {
-       
+    
+    async confirmEmail(req: Request, res: Response) {
+       const {token, email} = req.params
+      
+         const db = await connect()
+
+         try {
+             const row: any = await db.query("SELECT * FROM emailTokens WHERE used = 0 and token = ?", [token])
+             if (row[0].length > 0) {
+               
+                try {
+                    await db.query("UPDATE emailTokens SET used = 1 WHERE token = ?", [token])
+                    await db.query("UPDATE users SET emailVerify = 1 WHERE email = ?", [email])
+                   
+                }catch (error) {
+                    console.log(error)
+                    return res.send('Error verificando correo, vuelva a pedir  otro codigo').status(400)
+                }
+               
+             }else{
+                return res.send('Error verificando correo, vuelva a pedir  otro codigo').status(400)
+             }
+         }catch (error) {
+             console.log(error)
+            return  res.send('Error verificando correo, vuelva a pedir  otro codigo').status(400)
+         }
+
+         return res.send('Correo verificado, puede cerrar esta ventana').status(200)
 
     }
+
 
 
 

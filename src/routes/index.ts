@@ -19,6 +19,9 @@ router.post('/create-user',
     Valid.createUser(createUserSchema),
     ctrl.createUser
 )
+
+router.get('/confirmEmail/:token/:email', ctrl.confirmEmail)
+
 router.post('/login-user', 
     Valid.loginUser(loginUserSchema),
     ctrl.loginUser

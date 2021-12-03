@@ -23,7 +23,7 @@ transporter.verify((error, success) => {
 });
 
 
-    export  const sendEmail =   async (email:string) => {
+    export  const sendEmail =   async (email:string, id:any) => {
          //generate token random
          const newToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
         
@@ -41,7 +41,7 @@ transporter.verify((error, success) => {
                     <h1>Por favor verifica tu cuenta</h1>
                     <p>Para completar tu registro ingresa al siguiente link. Si no fuiste tu el que se registró, ignora este mensaje.</p>
                  
-                     <a style={padding:10px; background: black; color: white; text-aling:center;} href="${process.env.port || 4000}/confirmEmail/${newToken}">Verificar</a>` // html body
+                     <a style={padding:10px; background: black; color: white; text-aling:center;} href="http://localhost:4000/confirmEmail/${newToken}/${email}">Verificar</a>` // html body
                    
                  
              })
