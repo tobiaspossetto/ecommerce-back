@@ -1,9 +1,10 @@
 import express from 'express';
-
+const path = require('path');
 import cloudinary from 'cloudinary'
 import routes from './routes'
-
-
+import multer from 'multer';
+var bodyParser = require('body-parser')
+var cors = require('cors')
 if(process.env.NODE_ENV !== 'production'){
     require('dotenv').config()
 }
@@ -24,12 +25,22 @@ cloudinary.config({
 })
 
 
+const storage = multer.diskStorage({
+    destination: path.join(__dirname, 'public/uploads'),
+    filename: (req,file,cb) => {
+        cb(null, new Date().getTime() + path.extname(file.originalname));
+    }
+})
 //middlewares
 
-app.use(express.json());
-app.use(express.urlencoded({extended:false})) //poder interpretar datos de un form
 
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
 
+// parse application/json
+app.use(bodyParser.json())
+app.use(cors())
+app.use(multer({storage}).single('image'))
 //routes
 
 app.use('/', routes);

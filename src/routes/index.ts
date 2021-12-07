@@ -1,40 +1,44 @@
 import {Router, Request, Response} from 'express'
 import UserController  from '../controllers/userController'
-const {createUserSchema, updateUserSchema, loginUserSchema} = require('../lib/schemas')
+import ProductsController  from '../controllers/productsController'
+const {createUserSchema, updateUserSchema, loginUserSchema,createProductSchema} = require('../lib/schemas')
 import Validator from '../middlewares/validator'
 import Jwt from '../middlewares/jwt'
 import { transporter } from '../lib/mailer'
 const {checkRole} = require('../middlewares/role')
 
-
+import Verify from '../middlewares/protect'
 const router: Router = Router();
-const ctrl = new UserController()
+const UserCtrl = new UserController()
+const ProductCtrl = new ProductsController()
 const Valid = new Validator()
-const JwtCtrl = new Jwt()
+const verify = new Verify()
 
 //USERS
-router.get('/', ctrl.getUser)
+//For look users (develop)
+router.get('/', UserCtrl.getUser)
 
+//For create users
 router.post('/create-user', 
     Valid.createUser(createUserSchema),
-    ctrl.createUser
+    UserCtrl.createUser
 )
 
-router.get('/confirmEmail/:token/:email', ctrl.confirmEmail)
-
+//For login users
 router.post('/login-user', 
     Valid.loginUser(loginUserSchema),
-    ctrl.loginUser
+    UserCtrl.loginUser
 )
 
 
-router.get('/add', async (req: Request , res: Response) => {
-   res.send('add').status(200)
-        
-    
-  
-})
+//For confirm email 
+router.get('/confirmEmail/:token/:email', UserCtrl.confirmEmail)
 
+
+//For admin products
+
+//Create a new product
+router.post('/create-product',verify.productSchema, verify.checkJwt, verify.checkRole, verify.checkEmailVerification,ProductCtrl.createProduct)
 
 export default router
 

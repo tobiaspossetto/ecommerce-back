@@ -2,7 +2,7 @@
 import { Request, Response } from 'express'
 import { connect } from '../database'
 import jwt from 'jsonwebtoken'
-const {sendEmail} = require('../lib/mailer')
+const { sendEmail } = require('../lib/mailer')
 const { hashPassword, checkPassword } = require('../lib/encryptor')
 
 export default class UserController {
@@ -13,30 +13,30 @@ export default class UserController {
         const db = await connect()
 
         try {
-            let emailExists: any = await db.query("SELECT email FROM users WHERE email = ?", [email])
-            let userExists: any = await db.query("SELECT username FROM users WHERE username = ?", [username])
+            let emailExists: any = await db.query("SELECT email FROM POSSETTOusers WHERE email = ?", [email])
+            let userExists: any = await db.query("SELECT username FROM POSSETTOusers WHERE username = ?", [username])
 
             if (emailExists[0].length > 0) {
                 res.send({
                     error: true,
                     message: 'Email already in use'
                 }).status(400)
-            }else if (userExists[0].length > 0) {
+            } else if (userExists[0].length > 0) {
                 res.send({
-                    error:true,
+                    error: true,
                     message: 'Username already in use'
                 }).status(400)
             } else {
                 const newUser: object = { username, email, phone, adress, password: hashPassword(password), adm: 0 };
-                
+
                 try {
-                    await db.query("INSERT INTO users set ?", [newUser])
+                    await db.query("INSERT INTO POSSETTOusers set ?", [newUser])
                     await sendEmail(email)
-                    res.send({error: false, message: 'User created successfully'}).status(200)
+                    res.send({ error: false, message: 'User created successfully' }).status(200)
 
                 } catch (error) {
                     console.log(error)
-                    res.status(404).json({ error:true, message: 'Error consulting database' })
+                    res.status(404).json({ error: true, message: 'Error consulting database' })
                 }
             }
 
@@ -52,7 +52,7 @@ export default class UserController {
         const db = await connect()
         try {
 
-            const users: any = await db.query("SELECT * FROM users")
+            const users: any = await db.query("SELECT * FROM POSSETTOusers")
 
             users[0].forEach((user: any) => {
                 user.createdAt = user.createdAt.toLocaleString()
@@ -78,16 +78,16 @@ export default class UserController {
         const { username, password } = req.body;
         const db = await connect()
         try {
-            let user: any = await db.query("SELECT * FROM users WHERE username = ?", [username])
+            let user: any = await db.query("SELECT id, username, email FROM POSSETTOusers WHERE username = ?", [username])
             if (user[0].length > 0) {
                 const verify = await checkPassword(password, username)
 
                 if (verify) {
                     try {
-                        let secretKey:any = process.env.SECRET_JWT;
-                       
+                        let secretKey: any = process.env.SECRET_JWT;
+
                         jwt.sign({ userId: user[0][0].id, username: user[0][0].username, email: user[0][0].email }, secretKey, { expiresIn: '2h' }, (err, token) => {
-                            res.json({ token, "id": user[0][0].id , "username": user[0][0].username}).status(200)
+                            res.json({ token, "id": user[0][0].id, "username": user[0][0].username }).status(200)
                             if (err) {
                                 console.log(err)
                             }
@@ -95,7 +95,7 @@ export default class UserController {
                     } catch (error) {
                         console.log(error)
                     }
-                    
+
                 } else {
                     res.status(400).send('password incorrect')
 
@@ -108,37 +108,37 @@ export default class UserController {
         } catch (error) {
             console.log(error)
         }
-       
+
     }
 
-    
-    async confirmEmail(req: Request, res: Response) {
-       const {token, email} = req.params
-      
-         const db = await connect()
 
-         try {
-             const row: any = await db.query("SELECT * FROM emailTokens WHERE used = 0 and token = ?", [token])
-             if (row[0].length > 0) {
-               
+    async confirmEmail(req: Request, res: Response) {
+        const { token, email } = req.params
+
+        const db = await connect()
+
+        try {
+            const row: any = await db.query("SELECT * FROM POSSETTOemailTokens WHERE used = 0 and token = ?", [token])
+            if (row[0].length > 0) {
+
                 try {
-                    await db.query("UPDATE emailTokens SET used = 1 WHERE token = ?", [token])
-                    await db.query("UPDATE users SET emailVerify = 1 WHERE email = ?", [email])
-                   
-                }catch (error) {
+                    await db.query("UPDATE POSSETTOemailTokens SET used = 1 WHERE token = ?", [token])
+                    await db.query("UPDATE POSSETTOusers SET emailVerify = 1 WHERE email = ?", [email])
+
+                } catch (error) {
                     console.log(error)
                     return res.send('Error verificando correo, vuelva a pedir  otro codigo').status(400)
                 }
-               
-             }else{
-                return res.send('Error verificando correo, vuelva a pedir  otro codigo').status(400)
-             }
-         }catch (error) {
-             console.log(error)
-            return  res.send('Error verificando correo, vuelva a pedir  otro codigo').status(400)
-         }
 
-         return res.send('Correo verificado, puede cerrar esta ventana').status(200)
+            } else {
+                return res.send('Error verificando correo, vuelva a pedir  otro codigo').status(400)
+            }
+        } catch (error) {
+            console.log(error)
+            return res.send('Error verificando correo, vuelva a pedir  otro codigo').status(400)
+        }
+
+        return res.send('Correo verificado, puede cerrar esta ventana').status(200)
 
     }
 

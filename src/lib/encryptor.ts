@@ -13,7 +13,7 @@ module.exports ={
         let dbPassword = ''
         try {
     
-            let rows:any = await db.query("SELECT password FROM users WHERE username = ?", [username])
+            let rows:any = await db.query("SELECT password FROM POSSETTOusers WHERE username = ?", [username])
     
             dbPassword = rows[0][0].password
             
