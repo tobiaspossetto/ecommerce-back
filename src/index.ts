@@ -40,7 +40,13 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 app.use(cors())
-app.use(multer({storage}).single('image'))
+try {
+    app.use(multer({storage}).fields([{name: 'image1', maxCount: 5}, {name: 'image2', maxCount: 1}]))
+    
+} catch (error) {
+    console.log(error)
+}
+
 //routes
 
 app.use('/', routes);
@@ -48,7 +54,7 @@ app.use('/', routes);
 
 //starting server
 
-
+        
 
 
 export const server = app.listen(app.get('port'), () => {

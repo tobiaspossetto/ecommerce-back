@@ -7,6 +7,8 @@ import Jwt from '../middlewares/jwt'
 import { transporter } from '../lib/mailer'
 const {checkRole} = require('../middlewares/role')
 
+import uploadMultiple  from '../middlewares/multer'
+
 import Verify from '../middlewares/protect'
 const router: Router = Router();
 const UserCtrl = new UserController()
