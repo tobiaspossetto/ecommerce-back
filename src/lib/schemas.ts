@@ -29,15 +29,7 @@ module.exports = {
         stock: joi.number().integer().min(1).required(),
         price: joi.number().min(1).required(),
         category: joi.string().min(3).required(),
-        image: joi.object({
-            filename: joi.string().required(),
-            // path: joi.string().required(),
-            // headers: joi.object({
-            //     'content-disposition': joi.string().required(),
-            //     'content-type': joi.string().valid(['image/jpeg']).required(),
-            // }).required(),
-            // bytes: joi.number().required()
-        })
+        
 
     })
 }

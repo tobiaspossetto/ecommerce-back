@@ -29,25 +29,33 @@ const storage = multer.diskStorage({
     destination: path.join(__dirname, 'public/uploads'),
     filename: (req,file,cb) => {
         cb(null, new Date().getTime() + path.extname(file.originalname));
+       // console.log(req)
     }
+   
 })
+
+
 //middlewares
-
-
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
-
-// parse application/json
-app.use(bodyParser.json())
 app.use(cors())
-try {
-    app.use(multer({storage}).fields([{name: 'image1', maxCount: 5}, {name: 'image2', maxCount: 1}]))
-    
-} catch (error) {
-    console.log(error)
-}
 
-//routes
+app.use(express.json());
+
+app.use(express.urlencoded({extended:true}));
+
+app.use(multer({storage, fileFilter: function (req, file, callback) {
+    var ext = path.extname(file.originalname);
+    if(ext !== '.png' && ext !== '.jpg' && ext !== '.gif' && ext !== '.jpeg') {
+        return callback(new Error('Only images are allowed'))
+        
+    }
+    callback(null, true)
+}}).fields([{name: 'image1', maxCount: 1}, {name: 'image2', maxCount: 1}]))
+app.use((err: any,req:any,res:any,next:any)=>{
+    console.log(err.message);
+    res.status(400).json({ "error":true,
+      "msg":err.message
+    })
+  })
 
 app.use('/', routes);
 

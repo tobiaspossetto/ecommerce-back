@@ -2,7 +2,8 @@
 import { connect } from '../database'
 import jwt from 'jsonwebtoken'
 import { Request, Response, NextFunction } from 'express'
-
+const {createProductSchema} = require('../lib/schemas')
+const fs = require('fs-extra');
 export default class Verify {
     checkJwt = (req: Request, res: Response, next: NextFunction) => {
         const bearerHeader = req.headers['authorization'];
@@ -29,7 +30,7 @@ export default class Verify {
         } else {
 
 
-            return res.status(401).json({ "error": true, "message": "unauthorized" })
+            return res.status(401).json({ "error": true, "message": "unauthorized for invalid token" })
 
         }
     }
@@ -44,7 +45,7 @@ export default class Verify {
             if (rows[0][0].adm === 1) {
                 next()
             } else {
-                return res.status(401).json({ "error": true, "message": "unauthorized" })
+                return res.status(401).json({ "error": true, "message": "unauthorized for your role" })
             }
         } catch (error) {
             console.error(error)
@@ -71,29 +72,60 @@ export default class Verify {
     }
 
     productSchema =  async (req: Request, res: Response, next: NextFunction) => {
-        let {name, description, price, category, stock} = req.body
-        stock = parseInt(stock)
-        price = parseFloat(price)
-
-        name = String(name)
-        description = String(description)
-        category = String(category)
-        if(typeof name === 'string' && typeof description === 'string' && typeof price === 'number' && typeof category === 'string' && typeof stock === 'number'){
-            if(stock >= 1 && price >= 1){
-                console.log('ok')
-                next()
-            }else{
-                return res.status(401).json({ "error": true, "message": "stock and price must be greater than zero" })
-            }
-            
-
-        }else{
-            console.log( name, typeof description, typeof price, typeof category, typeof stock)
-            console.log( 'some input type is wrong')
-            return res.status(401).json({ "error": true, "message": "some input type is wrong" })
-            
+        let {price, stock} = req.body
+       //console.log(req.body)
         
+      
         
+
+        price = parseInt(price)
+        stock = parseFloat(stock)
+        
+      //  console.log(typeof req.body.price)
+        
+        try {
+            await  createProductSchema.validateAsync(req.body)
+
+            next()
+        } catch (error:any) {
+            let errorMsg:string =  (error.details[0].message).replace(/\"/g, '');
+            console.log(errorMsg)   
+             //@ts-ignore
+            await fs.unlink(req.files.image1[0].path) 
+             //@ts-ignore
+           await fs.unlink(req.files.image2[0].path) 
+            res.status(400)
+         
+            res.json({"error":true, "message":errorMsg});
         }
+       
+        // if(typeof name  !== 'undefined' ||name  !== ''  &&
+        //   typeof description  !== 'undefined' ||description  !== '' &&
+        //   typeof price !== 'undefined' ||price  !== '' && 
+        //   typeof category !== 'undefined' || category  !== '' && 
+        //   typeof stock !== 'undefined' || stock  !== '')
+        //   {
+        //     price = parseInt(price)
+        //     stock = parseInt(stock)
+        //     if(stock >= 1 && price >= 1){
+        //         console.log('ok')
+        //         next()
+        //     }else{
+        //         console.log( name,  description,  price,  category,  stock)
+        //         return res.status(401).json({ "error": true, "message": "stock and price must be greater than zero" })
+        //     }
+            
+
+        // }else{
+        //     console.log( name,  description,  price,  category,  stock)
+        //     console.log( 'some input type is wrong')
+        //     return res.status(401).json({ "error": true, "message": "some input type is wrong" })
+            
+        
+        
+        // }
+        
+    
+   
     }
 }

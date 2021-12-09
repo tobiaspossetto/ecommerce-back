@@ -7,7 +7,6 @@ import Jwt from '../middlewares/jwt'
 import { transporter } from '../lib/mailer'
 const {checkRole} = require('../middlewares/role')
 
-import uploadMultiple  from '../middlewares/multer'
 
 import Verify from '../middlewares/protect'
 const router: Router = Router();
@@ -37,10 +36,10 @@ router.post('/login-user',
 router.get('/confirmEmail/:token/:email', UserCtrl.confirmEmail)
 
 
-//For admin products
+//For admin products 
 
-//Create a new product
-router.post('/create-product',verify.productSchema, verify.checkJwt, verify.checkRole, verify.checkEmailVerification,ProductCtrl.createProduct)
+//Create a new product verify.checkJwt, verify.checkRole, verify.checkEmailVerification,verify.productSchema,
+router.post('/create-product',verify.productSchema,ProductCtrl.createProduct)
 
 export default router
 
