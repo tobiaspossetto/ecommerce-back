@@ -73,7 +73,7 @@ export default class Verify {
 
     productSchema =  async (req: Request, res: Response, next: NextFunction) => {
         let {price, stock} = req.body
-       //console.log(req.body)
+        console.log(req.body)
         
       
         
