@@ -2,7 +2,7 @@ import express from 'express';
 const path = require('path');
 import cloudinary from 'cloudinary'
 import routes from './routes'
-
+import morgan from 'morgan'
 var bodyParser = require('body-parser')
 var cors = require('cors')
 
@@ -39,7 +39,7 @@ app.use(express.json());
 
 app.use(express.urlencoded({extended:true}));
 
-
+app.use(morgan('dev'))
 
 
 

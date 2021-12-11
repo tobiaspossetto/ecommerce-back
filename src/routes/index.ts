@@ -46,7 +46,14 @@ router.get('/confirmEmail/:token/:email', UserCtrl.confirmEmail)
 //Create a new product verify.checkJwt, verify.checkRole, verify.checkEmailVerification,verify.productSchema,
 router.post('/create-product', verify.checkJwt, verify.checkRole, verify.checkEmailVerification,uploadImg ,verify.productSchema,ProductCtrl.createProduct)
 
+//get products
 
+router.get('/all-products', ProductCtrl.getProducts)
+
+router.get('/all-products/:id', ProductCtrl.getProductById)
+
+//consult stock and price of specified product
+router.get('/consult-products/', ProductCtrl.consultStockAndPrice)
 
 export default router
 
