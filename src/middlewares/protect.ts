@@ -1,6 +1,7 @@
 //Middlewares for protect routes
 import { connect } from '../database'
 import jwt from 'jsonwebtoken'
+const path = require('path');
 import { Request, Response, NextFunction } from 'express'
 const {createProductSchema} = require('../lib/schemas')
 const fs = require('fs-extra');
@@ -73,59 +74,21 @@ export default class Verify {
 
     productSchema =  async (req: Request, res: Response, next: NextFunction) => {
         let {price, stock} = req.body
-        console.log(req.body)
-        
-      
-        
-
+       
         price = parseInt(price)
         stock = parseFloat(stock)
-        
-      //  console.log(typeof req.body.price)
-        
-        try {
-            await  createProductSchema.validateAsync(req.body)
+      
+            try {
+                await  createProductSchema.validateAsync(req.body)
+                next()
+            } catch (error:any) {
+                let errorMsg:string =  (error.details[0].message).replace(/\"/g, '');
+                console.log(errorMsg)   
 
-            next()
-        } catch (error:any) {
-            let errorMsg:string =  (error.details[0].message).replace(/\"/g, '');
-            console.log(errorMsg)   
-             //@ts-ignore
-            await fs.unlink(req.files.image1[0].path) 
-             //@ts-ignore
-           await fs.unlink(req.files.image2[0].path) 
-            res.status(400)
-         
-            res.json({"error":true, "message":errorMsg});
-        }
-       
-        // if(typeof name  !== 'undefined' ||name  !== ''  &&
-        //   typeof description  !== 'undefined' ||description  !== '' &&
-        //   typeof price !== 'undefined' ||price  !== '' && 
-        //   typeof category !== 'undefined' || category  !== '' && 
-        //   typeof stock !== 'undefined' || stock  !== '')
-        //   {
-        //     price = parseInt(price)
-        //     stock = parseInt(stock)
-        //     if(stock >= 1 && price >= 1){
-        //         console.log('ok')
-        //         next()
-        //     }else{
-        //         console.log( name,  description,  price,  category,  stock)
-        //         return res.status(401).json({ "error": true, "message": "stock and price must be greater than zero" })
-        //     }
-            
+                await fs.emptyDirSync(path.join(__dirname, '../public/uploads'))
+                res.status(400)
 
-        // }else{
-        //     console.log( name,  description,  price,  category,  stock)
-        //     console.log( 'some input type is wrong')
-        //     return res.status(401).json({ "error": true, "message": "some input type is wrong" })
-            
-        
-        
-        // }
-        
-    
-   
+                res.json({"error":true, "message":errorMsg});
+            }
     }
 }

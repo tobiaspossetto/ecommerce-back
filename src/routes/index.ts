@@ -43,8 +43,8 @@ router.get('/confirmEmail/:token/:email', UserCtrl.confirmEmail)
 
 //For admin products   verify.checkJwt, verify.checkRole, verify.checkEmailVerification,
 
-//Create a new product verify.checkJwt, verify.checkRole, verify.checkEmailVerification,verify.productSchema,
-router.post('/create-product', verify.checkJwt, verify.checkRole, verify.checkEmailVerification,uploadImg ,verify.productSchema,ProductCtrl.createProduct)
+//Create a new product verify.checkJwt, verify.checkRole, verify.checkEmailVerification,verify.productSchema,,verify.productSchema,ProductCtrl.createProduct
+router.post('/create-product', verify.checkJwt, verify.checkRole, verify.checkEmailVerification,uploadImg,verify.productSchema,ProductCtrl.createProduct )
 
 //get products
 
@@ -54,6 +54,9 @@ router.get('/all-products/:id', ProductCtrl.getProductById)
 
 //consult stock and price of specified product
 router.get('/consult-products/', ProductCtrl.consultStockAndPrice)
+
+//Update product by id
+router.post('/update-product/:id', verify.checkJwt, verify.checkRole, verify.checkEmailVerification,verify.productSchema, ProductCtrl.updateProduct)
 
 export default router
 
