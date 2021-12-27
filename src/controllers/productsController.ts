@@ -34,14 +34,16 @@ export default class ProductsController {
                         idProduct: resProduct[0].insertId,
                         url: resultCloudinary1.url,
                         type: resultCloudinary1.format,
-                        size: resultCloudinary1.bytes
+                        size: resultCloudinary1.bytes,
+                        publicId: resultCloudinary1.public_id,
                     }
 
                     let newImagen2 = {
                         idProduct: resProduct[0].insertId,
                         url: resultCloudinary2.url,
                         type: resultCloudinary2.format,
-                        size: resultCloudinary2.bytes
+                        size: resultCloudinary2.bytes,
+                        publicId: resultCloudinary2.public_id
                     }
 
 
@@ -92,7 +94,7 @@ export default class ProductsController {
     getProducts = async (req: Request, res: Response) => {
         const db = await connect()
         try {
-            let resultProduct: any = await db.query('SELECT POSSETTOproducts.id, POSSETTOproducts.category, POSSETTOproducts.name, POSSETTOproducts.description,POSSETTOproducts.stock,POSSETTOproducts.price, (select POSSETTOimg.url from POSSETTOimg where POSSETTOimg.idProduct = POSSETTOproducts.id limit 1) as url1, (select POSSETTOimg.url from POSSETTOimg where POSSETTOimg.idProduct = POSSETTOproducts.id limit 1) as url2 FROM POSSETTOproducts')
+            let resultProduct: any = await db.query('SELECT POSSETTOproducts.id, POSSETTOproducts.category, POSSETTOproducts.name, POSSETTOproducts.description,POSSETTOproducts.stock,POSSETTOproducts.price, (select POSSETTOimg.url from POSSETTOimg where POSSETTOimg.idProduct = POSSETTOproducts.id limit 1) as url1, (select POSSETTOimg.url from POSSETTOimg where POSSETTOimg.idProduct = POSSETTOproducts.id and POSSETTOimg.url != url1 limit 1) as url2 FROM POSSETTOproducts where  POSSETTOproducts.deleted = 0')
             res.status(200).json(resultProduct[0])
         } catch (error) {
             console.log(error)
@@ -106,7 +108,7 @@ export default class ProductsController {
         const id = req.params.id
         const db = await connect()
         try {
-            let resultProduct: any = await db.query('SELECT POSSETTOproducts.id, POSSETTOproducts.category, POSSETTOproducts.name, POSSETTOproducts.description,POSSETTOproducts.stock,POSSETTOproducts.price, (select POSSETTOimg.url from POSSETTOimg where POSSETTOimg.idProduct = POSSETTOproducts.id limit 1) as url1, (select POSSETTOimg.url from POSSETTOimg where POSSETTOimg.idProduct = POSSETTOproducts.id limit 1) as url2 FROM POSSETTOproducts where POSSETTOproducts.id = ?', [id])
+            let resultProduct: any = await db.query('SELECT POSSETTOproducts.id, POSSETTOproducts.category, POSSETTOproducts.name, POSSETTOproducts.description,POSSETTOproducts.stock,POSSETTOproducts.price, (select POSSETTOimg.url from POSSETTOimg where POSSETTOimg.idProduct = POSSETTOproducts.id limit 1) as url1, (select POSSETTOimg.url from POSSETTOimg where POSSETTOimg.idProduct = POSSETTOproducts.id and POSSETTOimg.url != url1 limit 1) as url2 FROM POSSETTOproducts where POSSETTOproducts.id = ? and POSSETTOproducts.deleted = 0', [id])
             if (resultProduct[0].length > 0) {
                 res.status(200).json({ "error": false, "message": resultProduct[0][0] })
             } else {
@@ -167,6 +169,43 @@ export default class ProductsController {
 
 
 
+    }
+
+    deleteProduct = async (req: Request, res: Response) => {
+        const id = req.params.id
+        const db = await connect()
+        try {
+            //(select POSSETTOimg.url from POSSETTOimg where POSSETTOimg.idProduct = POSSETTOproducts.id limit 1)
+            // (select POSSETTOimg.publicId from POSSETTOimg where POSSETTOimg.idProduct = POSSETTOproducts.id limit 1)  as publicId1
+            let exist:any = await db.query('SELECT POSSETTOproducts.id, (select POSSETTOimg.url from POSSETTOimg where POSSETTOimg.idProduct = POSSETTOproducts.id limit 1) as url1, (select POSSETTOimg.publicId from POSSETTOimg where POSSETTOimg.idProduct = POSSETTOproducts.id   limit 1)  as publicId1,(select POSSETTOimg.url from POSSETTOimg where POSSETTOimg.idProduct = POSSETTOproducts.id and POSSETTOimg.url != url1 limit 1) as url2 , (select POSSETTOimg.publicId from POSSETTOimg where POSSETTOimg.idProduct = POSSETTOproducts.id and POSSETTOimg.publicId != publicId1 limit 1)  as publicId2 FROM POSSETTOproducts where POSSETTOproducts.id = ?  and POSSETTOproducts.deleted = 0', [id])
+            console.log(exist[0][0])
+            
+            if(exist[0].length > 0){
+                await db.query('update  POSSETTOproducts set deleted = ? WHERE id = ?', [1, id])
+                try {
+                    await Cloudinary.v2.uploader.destroy(exist[0][0].publicId1)
+                    await Cloudinary.v2.uploader.destroy(exist[0][0].publicId2)
+
+                    try {
+                        await db.query('delete from POSSETTOimg where idProduct = ?', [id])
+
+                    } catch (error) {
+                        
+                    }
+                } catch (error) {
+                    console.log(error)
+                }
+                
+                
+                
+                res.status(200).json({'error':false, 'message': 'Product deleted successfully'})
+            }else{
+                res.status(400).json({'error':true, 'message': 'Product not found'})
+            }
+        } catch (error) {
+            console.log(error)
+            res.status(404).json({'error':true, 'message': 'Error deleting product. Try again'})
+        }
     }
 
 

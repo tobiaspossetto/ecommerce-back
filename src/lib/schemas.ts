@@ -1,7 +1,7 @@
 import joi from '@hapi/joi'
 
 module.exports = {
-    
+
     createUserSchema: joi.object({
         username: joi.string().min(4).required(),
         email: joi.string().min(6).required(),
@@ -29,7 +29,19 @@ module.exports = {
         stock: joi.number().integer().min(1).required(),
         price: joi.number().min(1).required(),
         category: joi.string().min(3).required(),
-        
 
-    })
+
+    }),
+    /*
+        [
+            {}
+            {}
+            {}
+        ]
+    */
+    createOrderSchema: joi.array().min(1).items(joi.object({
+        productId: joi.number().integer().min(1).required(),
+        quantity: joi.number().integer().min(1).required(),
+        unitPrice: joi.number().min(1).required()
+    }))
 }
